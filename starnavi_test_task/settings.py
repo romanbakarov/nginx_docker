@@ -38,7 +38,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
-    'social_network_api'
+    'social_network_api',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 DATETIME_INPUT_FORMATS = ['%Y-%m-%d %H:%M:%S']
+
+AUTH_USER_MODEL = 'accounts.Account'
