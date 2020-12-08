@@ -125,4 +125,10 @@ STATIC_URL = '/static/'
 
 DATETIME_INPUT_FORMATS = ['%Y-%m-%d %H:%M:%S']
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
 AUTH_USER_MODEL = 'accounts.Account'
