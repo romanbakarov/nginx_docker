@@ -1,5 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.utils import timezone
+
+
+def update_last_request(user):
+    """
+    Updates last_request when user makes request to service
+    """
+    user.last_request = timezone.now()
+    user.save(update_fields=['last_request'])
 
 
 class AccountManager(BaseUserManager):
@@ -35,6 +44,8 @@ class Account(PermissionsMixin, AbstractBaseUser):
     username = models.CharField(max_length=150, unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    last_login = models.DateTimeField(blank=True, null=True)
+    last_request = models.DateTimeField(blank=True, null=True)
 
     objects = AccountManager()
 

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
 from accounts.serializers import AccountSerializer
 
@@ -22,3 +23,5 @@ class AccountSerializerTestCase(TestCase):
             }
         ]
         self.assertEqual(data, expected_data)
+
+

@@ -35,7 +35,7 @@ class AccountTestCase(TestCase):
         self.assertEqual(user.username, 'username')
         self.assertFalse(user.is_superuser)
         self.assertFalse(user.is_staff)
-        self.assertFalse(user.is_active)
+        self.assertTrue(user.is_active)
 
         with self.assertRaises(ValueError):
             User.objects.create_user(
