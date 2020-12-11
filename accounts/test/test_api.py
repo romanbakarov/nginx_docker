@@ -72,5 +72,4 @@ class ActivityTestCase(APITestCase):
             'last_login': self.login_time,
             'last_request': self.request_time
         }
-        print(response.data)
         self.assertEqual(response.data, expected_data)
