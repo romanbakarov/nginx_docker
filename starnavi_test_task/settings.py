@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'django_filters',
 
     'social_network_api',
     'accounts'
@@ -126,6 +127,9 @@ STATIC_URL = '/static/'
 DATETIME_INPUT_FORMATS = ['%Y-%m-%d %H:%M:%S']
 
 REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'accounts.authentication.CustomJWTAuthentication',
     )

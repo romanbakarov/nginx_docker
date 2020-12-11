@@ -1,10 +1,12 @@
 from django.db.models import Case, When, Count
-from rest_framework import mixins
+from django_filters import rest_framework as filters
+from rest_framework import mixins, generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
+from social_network_api.filters import LikeAnalyticsFilter
 from social_network_api.models import Post, Like
-from social_network_api.serializer import PostSerializer, LikeSerializer
+from social_network_api.serializer import PostSerializer, LikeSerializer, LikeAnalyticsSerializer
 
 
 class PostViewSet(mixins.CreateModelMixin,
@@ -31,3 +33,10 @@ class LikeView(mixins.UpdateModelMixin, GenericViewSet):
                                             post_id=self.kwargs['post'])
 
         return obj
+
+
+class LikeAnalyticsView(generics.ListAPIView):
+    queryset = Like.objects.all().annotate(likes_count=Count('pk')).order_by('-liked_at')
+    serializer_class = LikeAnalyticsSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = LikeAnalyticsFilter
