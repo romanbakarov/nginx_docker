@@ -1,3 +1,4 @@
+from django.db.models import Case, When, Count
 from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
@@ -10,7 +11,8 @@ class PostViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.ListModelMixin,
                   GenericViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().annotate(
+        likes_count=Count(Case(When(like__like=True, then=1))))
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 

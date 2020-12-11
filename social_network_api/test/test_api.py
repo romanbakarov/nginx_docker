@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Count, Case, When
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from social_network_api.models import Post
+from social_network_api.models import Post, Like
 from social_network_api.serializer import PostSerializer
 
 Account = get_user_model()
@@ -34,7 +35,9 @@ class PostApiTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.user1_token)
         url = reverse('post-list')
         response = self.client.get(url)
-        serializer_data = PostSerializer([self.post1, self.post2], many=True).data
+        posts = Post.objects.all().annotate(
+            likes_count=Count(Case(When(like__like=True, then=1)))).order_by('id')
+        serializer_data = PostSerializer(posts, many=True).data
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, serializer_data)
 
