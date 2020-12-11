@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Case, When
-from django.urls import reverse
+from django.urls import reverse, resolve
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from social_network_api.models import Post, Like
 from social_network_api.serializer import PostSerializer
+
+from freezegun import freeze_time
 
 Account = get_user_model()
 
@@ -36,7 +38,7 @@ class PostApiTest(APITestCase):
         url = reverse('post-list')
         response = self.client.get(url)
         posts = Post.objects.all().annotate(
-            likes_count=Count(Case(When(like__like=True, then=1)))).order_by('id')
+            likes_count=Count(Case(When(like__like=True, then=1))))
         serializer_data = PostSerializer(posts, many=True).data
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, serializer_data)
@@ -106,3 +108,35 @@ class LikeApiTest(APITestCase):
         }
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, expected_data)
+
+
+class LikeAnalyticsTestApi(APITestCase):
+    def setUp(self) -> None:
+        self.user1 = Account.objects.create_user(email='user1@user.com', username='username1', password='password')
+        self.user2 = Account.objects.create_user(email='user2@user.com', username='username2', password='password')
+        self.post = Post.objects.create(author=self.user2, body='test1')
+        Like.objects.create(post=self.post, user=self.user1)
+
+    @freeze_time('2020-12-12')
+    def test_like_analytics(self):
+        token = get_tokens_for_user(self.user2)['access']
+        url = reverse('like-detail', kwargs={'post': self.post.id})
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + token)
+        self.client.patch(url, {'like': 'True'})
+        expected_data = [
+            {
+                'likes_count': 1,
+                'liked_at': '2020-12-12'
+            },
+            {
+                'likes_count': 1,
+                'liked_at': '2020-12-11'
+            }
+        ]
+        url = reverse('likes_analytics')
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + token)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected_data)
+
+

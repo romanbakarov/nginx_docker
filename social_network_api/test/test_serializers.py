@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from social_network_api.models import Post, Like
-from social_network_api.serializer import PostSerializer, LikeSerializer
+from social_network_api.serializer import PostSerializer, LikeSerializer, LikeAnalyticsSerializer
 
 account = get_user_model()
 
@@ -47,4 +47,20 @@ class LikeSerializerTestCase(TestCase):
             'post': post.id,
             'like': True
         }
+        self.assertEqual(data, expected_data)
+
+
+class LikeAnalyticsSerializerTestCase(TestCase):
+    def test_ok(self):
+        user = account.objects.create(email='user@mail.com', username='user1', password='test1234')
+        post = Post.objects.create(author=user, body='test body 1')
+        Like.objects.create(post=post, user=user)
+        likes_analytis_data = Like.objects.all().annotate(likes_count=Count('pk')).order_by('-liked_at')
+        data = LikeAnalyticsSerializer(likes_analytis_data, many=True).data
+        expected_data = [
+            {
+                "likes_count": 1,
+                "liked_at": "2020-12-11"
+            }
+        ]
         self.assertEqual(data, expected_data)

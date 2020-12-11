@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework import status
-from rest_framework.test import APITestCase, APIClient, APIRequestFactory, force_authenticate
+from freezegun import freeze_time
+from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import Account
 

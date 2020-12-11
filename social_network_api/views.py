@@ -13,6 +13,9 @@ class PostViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.ListModelMixin,
                   GenericViewSet):
+    """
+    Lists and creates posts
+    """
     queryset = Post.objects.all().annotate(
         likes_count=Count(Case(When(like__like=True, then=1))))
     serializer_class = PostSerializer
@@ -36,7 +39,13 @@ class LikeView(mixins.UpdateModelMixin, GenericViewSet):
 
 
 class LikeAnalyticsView(generics.ListAPIView):
-    queryset = Like.objects.all().annotate(likes_count=Count('pk')).order_by('-liked_at')
+    """
+    Returns analytics about how many likes was made
+    aggregated by day
+    """
+    queryset = Like.objects.all().annotate(
+        likes_count=Count(Case(When(like=True, then=1)))).order_by('-liked_at')
+    permission_classes = [IsAuthenticated]
     serializer_class = LikeAnalyticsSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = LikeAnalyticsFilter

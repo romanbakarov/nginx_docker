@@ -23,6 +23,9 @@ class AccountCreate(APIView):
 
 
 class AccountActivity(APIView):
+    """
+    Returns last_request and last_login for specific user
+    """
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
